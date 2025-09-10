@@ -1,9 +1,20 @@
+import { db } from '../db';
+import { studentAchievementsTable } from '../db/schema';
 import { type StudentAchievement } from '../schema';
+import { eq, desc } from 'drizzle-orm';
 
-export async function getStudentAchievements(studentId: number): Promise<StudentAchievement[]> {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is fetching all achievement records for a specific student.
-  // This allows tracking student progress over multiple attempts and time periods.
-  // Results should be ordered by completion_date descending (newest first).
-  return [];
-}
+export const getStudentAchievements = async (studentId: number): Promise<StudentAchievement[]> => {
+  try {
+    // Query student achievements ordered by completion_date descending (newest first)
+    const results = await db.select()
+      .from(studentAchievementsTable)
+      .where(eq(studentAchievementsTable.student_id, studentId))
+      .orderBy(desc(studentAchievementsTable.completion_date))
+      .execute();
+
+    return results;
+  } catch (error) {
+    console.error('Failed to fetch student achievements:', error);
+    throw error;
+  }
+};

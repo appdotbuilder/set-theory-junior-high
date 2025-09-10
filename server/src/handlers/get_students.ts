@@ -1,8 +1,19 @@
+import { db } from '../db';
+import { studentsTable } from '../db/schema';
 import { type Student } from '../schema';
+import { desc } from 'drizzle-orm';
 
 export async function getStudents(): Promise<Student[]> {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is fetching all students from the database.
-  // This could be used for admin purposes or student selection.
-  return [];
+  try {
+    // Fetch all students ordered by creation date (newest first)
+    const results = await db.select()
+      .from(studentsTable)
+      .orderBy(desc(studentsTable.created_at))
+      .execute();
+
+    return results;
+  } catch (error) {
+    console.error('Get students failed:', error);
+    throw error;
+  }
 }

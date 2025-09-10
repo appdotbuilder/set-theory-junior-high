@@ -1,14 +1,23 @@
+import { db } from '../db';
+import { studentsTable } from '../db/schema';
 import { type CreateStudentInput, type Student } from '../schema';
 
 export async function createStudent(input: CreateStudentInput): Promise<Student> {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is creating a new student record in the database.
-  // It should validate the email uniqueness and return the created student with generated ID.
-  return Promise.resolve({
-    id: 0, // Placeholder ID
-    name: input.name,
-    email: input.email,
-    grade: input.grade,
-    created_at: new Date() // Placeholder date
-  } as Student);
+  try {
+    // Insert student record
+    const result = await db.insert(studentsTable)
+      .values({
+        name: input.name,
+        email: input.email,
+        grade: input.grade
+      })
+      .returning()
+      .execute();
+
+    // Return the created student
+    return result[0];
+  } catch (error) {
+    console.error('Student creation failed:', error);
+    throw error;
+  }
 }

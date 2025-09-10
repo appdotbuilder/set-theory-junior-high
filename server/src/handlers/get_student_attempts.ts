@@ -1,9 +1,29 @@
+import { db } from '../db';
+import { quizAttemptsTable } from '../db/schema';
 import { type QuizAttempt } from '../schema';
+import { eq, and } from 'drizzle-orm';
 
 export async function getStudentAttempts(studentId: number, attemptType?: 'quiz' | 'assessment'): Promise<QuizAttempt[]> {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is fetching all quiz attempts for a specific student.
-  // If attemptType is provided, filter by quiz or assessment attempts only.
-  // This is used to track student progress and calculate scores.
-  return [];
+  try {
+    // Build conditions array
+    const conditions = [eq(quizAttemptsTable.student_id, studentId)];
+
+    // Add attempt type filter if provided
+    if (attemptType) {
+      conditions.push(eq(quizAttemptsTable.attempt_type, attemptType));
+    }
+
+    // Build and execute query in one chain
+    const results = await db.select()
+      .from(quizAttemptsTable)
+      .where(and(...conditions))
+      .orderBy(quizAttemptsTable.created_at)
+      .execute();
+
+    // Return the results (no numeric conversion needed - all fields are integers or enums)
+    return results;
+  } catch (error) {
+    console.error('Failed to get student attempts:', error);
+    throw error;
+  }
 }

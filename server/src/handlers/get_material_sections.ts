@@ -1,9 +1,19 @@
+import { db } from '../db';
+import { materialSectionsTable } from '../db/schema';
 import { type MaterialSection } from '../schema';
+import { asc } from 'drizzle-orm';
 
 export async function getMaterialSections(): Promise<MaterialSection[]> {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is fetching all material sections for Set Theory topic,
-  // ordered by the 'order' field to display content in the correct sequence.
-  // This will include detailed explanations of Intersection and Union of Sets.
-  return [];
+  try {
+    // Fetch all material sections ordered by the 'order' field
+    const results = await db.select()
+      .from(materialSectionsTable)
+      .orderBy(asc(materialSectionsTable.order))
+      .execute();
+
+    return results;
+  } catch (error) {
+    console.error('Failed to fetch material sections:', error);
+    throw error;
+  }
 }

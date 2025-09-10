@@ -1,3 +1,5 @@
+import { db } from '../db';
+import { materialSectionsTable } from '../db/schema';
 import { type MaterialSection } from '../schema';
 
 interface CreateMaterialSectionInput {
@@ -7,16 +9,22 @@ interface CreateMaterialSectionInput {
   order: number;
 }
 
-export async function createMaterialSection(input: CreateMaterialSectionInput): Promise<MaterialSection> {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is creating new material sections for the Set Theory topic.
-  // This would be used by administrators to add or update learning content.
-  return Promise.resolve({
-    id: 0, // Placeholder ID
-    title: input.title,
-    content: input.content,
-    topic: input.topic,
-    order: input.order,
-    created_at: new Date() // Placeholder date
-  } as MaterialSection);
-}
+export const createMaterialSection = async (input: CreateMaterialSectionInput): Promise<MaterialSection> => {
+  try {
+    // Insert material section record
+    const result = await db.insert(materialSectionsTable)
+      .values({
+        title: input.title,
+        content: input.content,
+        topic: input.topic,
+        order: input.order
+      })
+      .returning()
+      .execute();
+
+    return result[0];
+  } catch (error) {
+    console.error('Material section creation failed:', error);
+    throw error;
+  }
+};
